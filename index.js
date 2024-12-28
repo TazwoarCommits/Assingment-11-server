@@ -52,9 +52,15 @@ async function run() {
             res.send(result) ;
         })
 
-        // app.get("/recommendation" , async (req , res ) => {
-        //     const queryId = req.query.
-        // })
+    //   get recommendation for a single asked query
+
+    app.get("/recommendation/query/:queryID" ,  async (req , res ) => {
+        const query_ID = req.params.queryID ;
+        const filter = {queryID : query_ID} ;
+        const result = await recommendationCollection.find(filter).toArray() ;
+        console.log(query_ID);
+        res.send(result)
+    })
 
     // Get Details of specific Query
 
