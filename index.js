@@ -86,6 +86,18 @@ async function run() {
         app.post("/recommendation" , async (req , res) => {
             const newRecommendation = {...req.body , createdAt : new Date()} ;
             const result = await recommendationCollection.insertOne(newRecommendation); 
+            const id = newRecommendation.queryID ; 
+            const filter = {_id : new ObjectId(id) } ;
+            const fetchedQuery = await queriesCollection.findOne(filter) ;
+            let newCount = fetchedQuery.recommendCount + 1 ; 
+            const query = {_id : new ObjectId(id) } ;
+            const updatedQuery = {
+                $set : {
+                    recommendCount : newCount
+                }
+            }
+
+            const updatedResult = await queriesCollection.updateOne( query , updatedQuery)
             res.send(result)
         })
 
