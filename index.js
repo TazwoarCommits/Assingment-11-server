@@ -58,7 +58,6 @@ async function run() {
         const query_ID = req.params.queryID ;
         const filter = {queryID : query_ID} ;
         const result = await recommendationCollection.find(filter).toArray() ;
-        console.log(query_ID);
         res.send(result)
     })
 
@@ -89,6 +88,7 @@ async function run() {
 
 
     //    post a recommendation
+
         app.post("/recommendation" , async (req , res) => {
             const newRecommendation = {...req.body , createdAt : new Date()} ;
             const result = await recommendationCollection.insertOne(newRecommendation); 
@@ -107,6 +107,14 @@ async function run() {
             res.send(result)
         })
 
+   //   delete a recommendation 
+
+        app.delete("/recommendation/:id" , async (req , res ) => {
+            const id = req.params.id ; 
+            const filter = {_id : new ObjectId(id)} ;
+            const result = await recommendationCollection.deleteOne(filter)
+            res.send(result)
+        })
 
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
