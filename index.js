@@ -39,16 +39,26 @@ async function run() {
             if(email){
                 query = {"author.email" : email}
             }
-            const cursor = queriesCollection.find(query) ;
+            const cursor = queriesCollection.find(query).sort({createdAt : -1}) ;
             const result = await cursor.toArray() ;
             res.send(result) ; 
         })
 
         // get all of my recommendation  
+
         app.get("/recommendation" , async (req , res) => {
             const email = req.query.email ; 
             const filter = { recommendersEmail : email} ; 
-            const result = await recommendationCollection.find(filter).toArray();
+            const result = await recommendationCollection.find(filter).sort({createdAt : -1}).toArray();
+            res.send(result) ;
+        })
+
+        // get recommended for me 
+
+        app.get("/recommendation/forMe" , async (req , res) => {
+            const email = req.query.email ; 
+            const filter = {queryAuthorEmail : email} ;
+            const result = await recommendationCollection.find(filter).sort({createdAt : -1}).toArray();
             res.send(result) ;
         })
 
@@ -57,7 +67,7 @@ async function run() {
     app.get("/recommendation/query/:queryID" ,  async (req , res ) => {
         const query_ID = req.params.queryID ;
         const filter = {queryID : query_ID} ;
-        const result = await recommendationCollection.find(filter).toArray() ;
+        const result = await recommendationCollection.find(filter).sort({createdAt : -1}).toArray() ;
         res.send(result)
     })
 
@@ -74,6 +84,27 @@ async function run() {
         app.post("/queries" , async (req , res) => {
             const newQuery = {...req.body , createdAt : new Date()} ;
             const result = await queriesCollection.insertOne(newQuery); 
+            res.send(result)
+        })
+
+        // update a query 
+        
+        app.put("/queries/:id" , async (req , res) => {
+            const id = req.params.id ; 
+            const filter = {_id : new ObjectId(id)} ;
+            const options = {upsert : true} ;
+            const updatedQuery = req.body ; 
+            const query = {
+                $set : {
+                     title : updatedQuery.title ,
+                     product : updatedQuery.product,
+                     brand : updatedQuery.brand ,
+                     productImage : updatedQuery.productImage ,
+                     reason : updatedQuery.reason
+                }
+            }  
+
+            const result = await queriesCollection.updateOne(filter , query , options) ;
             res.send(result)
         })
 
